@@ -96,8 +96,14 @@ void DrawProcessing()
 	// 描画処理を実行する場合、必ず最初実行する
 	Engine::StartDrawing(0);
 
-	Engine::DrawTexture(320,240,const char* texture_keyword,UCHAR  alpha = 255,float  angle = 0.0f,float  scale_x = 1.0f,float  scale_y = 1.0f)
 
+	Engine::DrawTexture(320, 240, const char* texture_keyword, UCHAR  alpha = 255, float  angle = 0.0f, float  scale_x = 1.0f, float  scale_y = 1.0f);
+
+
+	// フォント描画
+	//Engine::DrawFont(0.0f, 0.0f, "FontSize:Small", FontSize::Small, FontColor::White);
+	//Engine::DrawFont(0.0f, 30.0f, "FontSize:Regular", FontSize::Regular, FontColor::White);
+	//Engine::DrawFont(0.0f, 60.0f, "FontSize:Large", FontSize::Large, FontColor::White);
 
 	// フォント描画
 	//Engine::DrawFont(0.0f, 0.0f, "FontSize:Small", FontSize::Small, FontColor::White);
