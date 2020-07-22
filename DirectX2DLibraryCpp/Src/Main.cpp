@@ -13,8 +13,10 @@ float g_Angle = 0.0f;
 
 static float player_pos_x = 100.0f;
 static float player_pos_y = 100.0f;
-static float enemy_pos_x = 300.0f;
-static float enemy_pos_y = 200.0f;
+const float enemy_initialize_x = 300.0f;
+const float enemy_initialize_y = 200.0f;
+static float enemy_pos_x = enemy_initialize_x;
+static float enemy_pos_y = enemy_initialize_y;
 const float X_posmax = 640.0f;
 const float Y_posmax = 480.0f;
 const float X_posmin = 0.0f;
@@ -22,6 +24,11 @@ const float Y_posmin = 0.0f;
 const float pmove = 3.0f;
 const float emove = 1.0f;
 static float radian;
+static int EnemyExistenceCount = 0;
+
+static bool BulletExistence = false;
+static float bullet_pos_x;
+static float bullet_pos_y;
 
 // ゲーム処理
 void GameProcessing();
@@ -32,7 +39,13 @@ float Pai();
 
 float Angle(float r);
 
+void EnemyCreate(bool cancel);
 
+bool EnemyExistence(float* epx, float* epy);
+
+void BulletShoot(bool shoot);
+
+void BulletMove();
 
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
@@ -47,9 +60,9 @@ int WINAPI WinMain(
 		return 0;
 	}
 
-
 	Engine::LoadTexture("Enemy", "Res/Enemies/EA1.PNG");
 	Engine::LoadTexture("Robo", "Res/Robot/Robot_idle 1.PNG");
+	Engine::LoadTexture("Bullet", "Res/Bullet/Bullet1.png");
 
 	while (true)
 	{
@@ -99,6 +112,8 @@ void GameProcessing()
 	// キーボードの入力取得
 	//========================================================
 
+
+	//==========[自機の移動処理]==========//
 	if (Engine::IsKeyboardKeyHeld(DIK_UP) == true)
 	{
 		player_pos_y -= pmove;
@@ -128,8 +143,20 @@ void GameProcessing()
 	}
 
 
-	///////////////////////////
+	//==========[弾の処理]==========//
 
+	if (Engine::IsKeyboardKeyPushed(DIK_SPACE) == true)
+	{
+		BulletExistence = true;
+		bullet_pos_x = player_pos_x;
+		bullet_pos_y = player_pos_y;
+	}
+	if (BulletExistence)
+	{
+		BulletMove();
+	}
+	
+	//==========[Enemyの追跡処理]==========//
 	
 	float tmp_wid = (player_pos_x - enemy_pos_x) * (player_pos_x - enemy_pos_x);
 	float tmp_hei = (player_pos_y - enemy_pos_y) * (player_pos_y - enemy_pos_y);
@@ -153,8 +180,9 @@ void GameProcessing()
 		enemy_pos_y += emove * Y_increment;
 	else
 		enemy_pos_y -= emove * Y_increment;
+	/////////////////////////////////////////////////////
 	
-
+	EnemyExistenceCount++;
 
 }
 
@@ -166,9 +194,8 @@ void DrawProcessing()
 
 
 	Engine::DrawTexture(player_pos_x, player_pos_y, "Robo", 255, 0.0f,  1.0f,  1.0f);
-	Engine::DrawTexture(enemy_pos_x, enemy_pos_y, "Enemy", 255, Angle(radian), 1.0f, 1.0f);
-
-
+	EnemyCreate(EnemyExistence(&enemy_pos_x, &enemy_pos_y));
+	BulletShoot(BulletExistence);
 
 	// 描画終了
 	// 描画処理を終了する場合、必ず最後に実行する
@@ -224,7 +251,7 @@ float Angle(float r)		//enemyの角度
 		{
 			return 90.0f;
 		}
-		else if (player_pos_y < enemy_pos_y)
+		else if (player_pos_y < enemy_pos_y)			//x = 0
 		{
 			return 270.0f;
 		}
@@ -232,3 +259,40 @@ float Angle(float r)		//enemyの角度
 			return 0.0f;
 	}
 }
+
+void EnemyCreate(bool cancel)
+{
+	if (cancel) {
+		Engine::DrawTexture(enemy_pos_x, enemy_pos_y, "Enemy", 255, Angle(radian), 1.0f, 1.0f);
+	}
+	else
+	{
+
+	}
+}
+
+bool EnemyExistence(float* epx, float* epy)
+{
+	if ((EnemyExistenceCount / 100)%2 == 0)
+	{
+		return true;
+	}
+	else
+	{
+		*epx = enemy_initialize_x;				//globalだと関数外から変数を引っ張ってこられるが
+		*epy = enemy_initialize_y;				//返す時面倒臭いのでpointer使用
+		return false;
+	}
+}
+
+void BulletShoot(bool shoot)
+{
+	if(shoot)
+	Engine::DrawTexture(bullet_pos_x, bullet_pos_y, "Bullet", 255, 0.0f, 0.5f, 0.5f);
+}
+void BulletMove()
+{
+	bullet_pos_x += 5;
+}
+
+
